@@ -31,7 +31,7 @@ class ApiService {
       Uri.parse('$baseUrl$endpoint'),
       headers: _headers(token),
       body: jsonEncode(data),
-    ).timeout(const Duration(seconds: 10));
+    ).timeout(const Duration(seconds: 30));
   }
 
   Future<http.Response> get(String endpoint) async {

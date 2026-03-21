@@ -18,7 +18,7 @@ class ComplaintProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> createComplaint({
+  Future<Map<String, dynamic>> createComplaint({
     required String title,
     required String description,
     required String image,
@@ -33,6 +33,22 @@ class ComplaintProvider extends ChangeNotifier {
     });
 
     if (response.statusCode == 201) {
+      await fetchComplaints();
+      return {'success': true};
+    } else if (response.statusCode == 409) {
+      final data = jsonDecode(response.body);
+      return {
+        'success': false,
+        'isDuplicate': true,
+        'existingComplaint': data['existingComplaint'],
+      };
+    }
+    return {'success': false};
+  }
+
+  Future<bool> confirmDuplicate(String originalId) async {
+    final response = await _apiService.post('/complaints/$originalId/confirm-duplicate', {});
+    if (response.statusCode == 200) {
       await fetchComplaints();
       return true;
     }

@@ -12,6 +12,7 @@ class Complaint {
   final DateTime? verifiedAt;
   final DateTime? assignedAt;
   final DateTime? resolvedAt;
+  final int reportCount;
   final String? resolutionImage;
 
   Complaint({
@@ -28,6 +29,7 @@ class Complaint {
     this.verifiedAt,
     this.assignedAt,
     this.resolvedAt,
+    this.reportCount = 1,
     this.resolutionImage,
   });
 
@@ -42,6 +44,7 @@ class Complaint {
       status: json['status'],
       createdBy: json['createdBy'] is Map ? json['createdBy']['name'] : json['createdBy'],
       assignedEngineerId: json['assignedEngineerId'] is Map ? json['assignedEngineerId']['name'] : json['assignedEngineerId'],
+      reportCount: json['reportCount'] ?? 1,
       createdAt: DateTime.parse(json['createdAt']),
       verifiedAt: json['verifiedAt'] != null ? DateTime.parse(json['verifiedAt']) : null,
       assignedAt: json['assignedAt'] != null ? DateTime.parse(json['assignedAt']) : null,

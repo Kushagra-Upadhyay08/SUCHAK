@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/complaint_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../models/complaint_model.dart';
 import '../common/map_screen.dart';
 import '../role_selection_screen.dart';
 
@@ -87,14 +89,78 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildComplaintCard(complaint) {
+  Widget _buildComplaintCard(Complaint complaint) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       child: ListTile(
+        onTap: () => _showComplaintDetails(complaint),
         title: Text(complaint.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text("Status: ${complaint.status}\nBy: ${complaint.createdBy}"),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Status: ${complaint.status}"),
+            Text("By: ${complaint.createdBy}"),
+            if (complaint.reportCount > 1)
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade100,
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.red.shade300),
+                  ),
+                  child: Text(
+                    "${complaint.reportCount} citizens facing the same problem",
+                    style: TextStyle(color: Colors.red.shade900, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+          ],
+        ),
         trailing: _buildActionButtons(complaint),
         isThreeLine: true,
+      ),
+    );
+  }
+
+  void _showComplaintDetails(Complaint complaint) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.8,
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.memory(
+                  base64Decode(complaint.image),
+                  width: double.infinity,
+                  height: 300,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(complaint.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Text("Status: ${complaint.status}", style: const TextStyle(fontSize: 18, color: Colors.blue, fontWeight: FontWeight.bold)),
+              if (complaint.reportCount > 1)
+                Text("${complaint.reportCount} combined reports", style: const TextStyle(fontSize: 16, color: Colors.red, fontWeight: FontWeight.bold)),
+              const Divider(height: 30),
+              const Text("Description:", style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(complaint.description),
+              const SizedBox(height: 10),
+              Text("Reported by: ${complaint.createdBy}"),
+              Text("Created: ${complaint.createdAt.toLocal().toString().split('.')[0]}"),
+              if (complaint.verifiedAt != null) Text("Verified: ${complaint.verifiedAt!.toLocal().toString().split('.')[0]}"),
+              if (complaint.assignedEngineerId != null) Text("Assigned To: ${complaint.assignedEngineerId}"),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -14,6 +14,8 @@ const complaintSchema = new mongoose.Schema({
     default: 'PENDING'
   },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  duplicateOf: { type: mongoose.Schema.Types.ObjectId, ref: 'Complaint' }, // Link to original complaint
+  reportCount: { type: Number, default: 1 }, // How many citizens reported this
   assignedEngineerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   verifiedAt: Date,
   assignedAt: Date,
