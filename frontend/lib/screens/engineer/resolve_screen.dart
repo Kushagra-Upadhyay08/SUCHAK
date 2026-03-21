@@ -25,8 +25,15 @@ class _ResolveScreenState extends State<ResolveScreen> {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.camera);
     if (image != null) {
-      setState(() => _image = image);
-      _getCurrentLocation();
+      setState(() {
+        _image = image;
+        _isLoading = true; // Show loading while getting location
+      });
+      try {
+        await _getCurrentLocation();
+      } finally {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -74,14 +81,32 @@ class _ResolveScreenState extends State<ResolveScreen> {
               ? Image.file(File(_image!.path), height: 250)
               : OutlinedButton.icon(onPressed: _captureProof, icon: const Icon(Icons.camera_alt), label: const Text("Capture Proof (Real-time)")),
             const SizedBox(height: 20),
-            if (_currentPosition != null) Text("Verified at: ${_currentPosition!.latitude}, ${_currentPosition!.longitude}"),
-            const Spacer(),
-            _isLoading 
-              ? const CircularProgressIndicator()
-              : SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(onPressed: _submitResolution, child: const Text("Mark as Resolved"))
+            if (_isLoading) 
+              const Center(child: Column(children: [CircularProgressIndicator(), Text("Fetching Location... Readying Proof...")])),
+            if (_currentPosition != null) ...[
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(10)),
+                child: Row(
+                  children: [
+                    const Icon(Icons.location_on, color: Colors.green),
+                    const SizedBox(width: 10),
+                    Text("Verified at: ${_currentPosition!.latitude.toStringAsFixed(4)}, ${_currentPosition!.longitude.toStringAsFixed(4)}", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                  ],
                 ),
+              ),
+            ],
+            const Spacer(),
+            if (!_isLoading) SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: _image == null || _currentPosition == null ? Colors.grey : Colors.green),
+                onPressed: _image == null || _currentPosition == null ? null : _submitResolution, 
+                child: Text(_image == null ? "Capture Proof" : (_currentPosition == null ? "Getting Location..." : "Mark as Resolved"))
+              )
+            ),
           ],
         ),
       ),
