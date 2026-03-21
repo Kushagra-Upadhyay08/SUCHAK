@@ -1,19 +1,31 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/complaint_model.dart';
+import '../models/user_model.dart';
 import '../services/api_service.dart';
 
 class ComplaintProvider extends ChangeNotifier {
   List<Complaint> _complaints = [];
+  List<User> _engineers = [];
   final ApiService _apiService = ApiService();
 
   List<Complaint> get complaints => _complaints;
+  List<User> get engineers => _engineers;
 
   Future<void> fetchComplaints() async {
     final response = await _apiService.get('/complaints');
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       _complaints = data.map((json) => Complaint.fromJson(json)).toList();
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchEngineers() async {
+    final response = await _apiService.get('/auth/engineers');
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      _engineers = data.map((json) => User.fromJson(json)).toList();
       notifyListeners();
     }
   }

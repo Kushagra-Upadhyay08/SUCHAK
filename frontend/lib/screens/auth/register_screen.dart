@@ -13,9 +13,15 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _employeeIdController = TextEditingController(); // For engineers
   bool _isLoading = false;
 
   void _register() async {
+    if (widget.role == 'engineer' && _employeeIdController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter your Employee ID")));
+      return;
+    }
+
     setState(() => _isLoading = true);
     final auth = Provider.of<AuthProvider>(context, listen: false);
     try {
@@ -23,6 +29,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _nameController.text,
         _passwordController.text,
         widget.role,
+        employeeId: widget.role == 'engineer' ? _employeeIdController.text : null,
       );
       if (success) {
         Navigator.pop(context); // Go back to Login
@@ -38,13 +45,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Register as ${widget.role}")),
+      appBar: AppBar(title: Text("Register as ${widget.role.toUpperCase()}")),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             TextField(controller: _nameController, decoration: const InputDecoration(labelText: "Full Name")),
             TextField(controller: _passwordController, decoration: const InputDecoration(labelText: "Password"), obscureText: true),
+            if (widget.role == 'engineer')
+               TextField(controller: _employeeIdController, decoration: const InputDecoration(labelText: "Employee ID (Engineer ID)")),
             const SizedBox(height: 20),
             _isLoading 
               ? const CircularProgressIndicator()

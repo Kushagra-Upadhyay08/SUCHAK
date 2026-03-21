@@ -3,39 +3,47 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 require('dotenv').config();
+const { verifyJWT, checkRole } = require('../middleware/auth');
 
 // Register
 router.post('/register', async (req, res) => {
   try {
-    console.log('1. Registration route hit');
-    const { name, password, role } = req.body;
-    console.log('2. Body parsed:', { name, role });
+    const { name, password, role, employeeId } = req.body;
     
-    console.log('3. Searching for user...');
     let user = await User.findOne({ name });
-    console.log('4. User search complete');
-    
     if (user) {
-      console.log('5. User already exists');
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    console.log('6. Creating new user object...');
-    user = new User({ name, password, role });
-    console.log('7. Saving user to DB...');
-    await user.save();
-    console.log('8. User saved successfully');
+    if (employeeId) {
+      const existingEmployee = await User.findOne({ employeeId });
+      if (existingEmployee) {
+        return res.status(400).json({ message: 'Employee ID already in use' });
+      }
+    }
 
-    console.log('9. Signing token...');
-    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secretkey', { expiresIn: '7d' });
-    console.log('10. Token signed');
+    user = new User({ name, password, role, employeeId });
+    await user.save();
+
+    const token = jwt.sign(
+      { userId: user._id, role: user.role }, 
+      process.env.JWT_SECRET || 'secretkey', 
+      { expiresIn: '7d' }
+    );
     
-    res.json({ token, user: { id: user._id, name, role } });
+    res.json({ token, user: { id: user._id, name, role, employeeId } });
   } catch (error) {
-    const fs = require('fs');
-    fs.appendFileSync('error.log', error.stack + '\n');
-    console.error('Registration error details saved to error.log');
     res.status(500).json({ message: 'Server error: ' + error.message });
+  }
+});
+
+// Get Engineers (Admin only)
+router.get('/engineers', verifyJWT, checkRole(['admin']), async (req, res) => {
+  try {
+    const engineers = await User.find({ role: 'engineer' }).select('name employeeId _id');
+    res.json(engineers);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching engineers' });
   }
 });
 

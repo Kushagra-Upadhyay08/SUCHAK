@@ -26,11 +26,12 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> register(String name, String password, String role) async {
+  Future<bool> register(String name, String password, String role, {String? employeeId}) async {
     final response = await _apiService.post('/auth/register', {
       'name': name,
       'password': password,
       'role': role,
+      'employeeId': employeeId,
     });
 
     final data = jsonDecode(response.body);
