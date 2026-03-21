@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/complaint_provider.dart';
 import 'create_complaint_screen.dart';
 import '../role_selection_screen.dart';
+import '../common/map_screen.dart';
 
 class CitizenDashboard extends StatefulWidget {
   const CitizenDashboard({super.key});
@@ -23,17 +24,21 @@ class _CitizenDashboardState extends State<CitizenDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
     final complaintProvider = Provider.of<ComplaintProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Complaints"),
+        title: const Text("Citizen Dashboard"),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.map),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MapScreen())),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              auth.logout();
+              authProvider.logout();
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),

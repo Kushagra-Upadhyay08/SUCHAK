@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/complaint_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../common/map_screen.dart';
 import '../role_selection_screen.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -34,6 +34,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
       appBar: AppBar(
         title: const Text("Admin Dashboard"),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.map),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MapScreen())),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
