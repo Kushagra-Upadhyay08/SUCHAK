@@ -13,13 +13,18 @@ class ComplaintProvider extends ChangeNotifier {
   List<User> get engineers => _engineers;
 
   Future<void> fetchComplaints() async {
-    final response = await _apiService.get('/complaints');
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      _complaints = data.map((json) => Complaint.fromJson(json)).toList();
-      notifyListeners();
+    try {
+      final response = await _apiService.get('/complaints');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        _complaints = data.map((json) => Complaint.fromJson(json)).toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("Error fetching complaints: $e");
     }
   }
+
 
   Future<void> fetchEngineers() async {
     final response = await _apiService.get('/auth/engineers');

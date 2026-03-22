@@ -26,6 +26,24 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
+  Future<bool> tryAutoLogin() async {
+    try {
+      final token = await _apiService.getToken();
+      if (token == null) return false;
+
+      final response = await _apiService.get('/auth/me');
+      if (response.statusCode == 200) {
+        final userData = jsonDecode(response.body);
+        _user = User.fromJson(userData);
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> register(String name, String password, String role, {String? employeeId}) async {
     final response = await _apiService.post('/auth/register', {
       'name': name,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/complaint_provider.dart';
-import 'screens/role_selection_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(
@@ -40,7 +40,7 @@ class SuchakApp extends StatelessWidget {
           fillColor: Colors.grey.shade100,
         ),
       ),
-      home: const RoleSelectionScreen(),
+      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
