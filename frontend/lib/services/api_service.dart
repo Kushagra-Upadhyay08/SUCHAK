@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://172.16.78.149:5000/api'; // Local IP for physical phone
+  static const String baseUrl = 'https://suchak-production.up.railway.app/api';
   final _storage = const FlutterSecureStorage();
 
   Future<String?> getToken() async {
@@ -27,11 +27,13 @@ class ApiService {
 
   Future<http.Response> post(String endpoint, Map<String, dynamic> data) async {
     final token = await getToken();
-    return await http.post(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: _headers(token),
-      body: jsonEncode(data),
-    ).timeout(const Duration(seconds: 30));
+    return await http
+        .post(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: _headers(token),
+          body: jsonEncode(data),
+        )
+        .timeout(const Duration(seconds: 30));
   }
 
   Future<http.Response> get(String endpoint) async {
